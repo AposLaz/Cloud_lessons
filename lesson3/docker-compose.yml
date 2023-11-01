@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    restart: always
+    ports:
+      - "8000:80"
+    networks:
+      - products
+
+  products-service:
+    build:
+      context: ./backend/products-service
+    container_name: products-service
+    command: npm start
+    restart: always
+    ports:
+      - "${PORT}:${PORT}"
+    environment:
+      - PORT=${PORT}
+    networks:
+      - products
+
+networks:
+  products:

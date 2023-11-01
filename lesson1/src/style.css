@@ -1,0 +1,74 @@
+/* body background color */
+body {
+    background-color: #888;
+}
+
+p{
+    font-size: 16px;
+}
+
+#cards{
+  width: 200px;
+  display: flex;
+}
+.card img{
+  max-width: 200px;
+}
+
+.card {
+    border: 1px solid #000;
+    padding: 1rem;
+    border-radius: 12px;
+    margin: 8px;
+}
+
+/* in a div give text color */
+/* background color of a div */
+/* padding */
+/* margin */
+/* font-size */
+/* font-family */
+/* width */
+/* height */
+
+/* from div in js */
+/* parent div flexbox */
+/* child div width, border, border-radius, margin, text-align*/
+
+/* .my-div {
+    color: red;
+}
+
+#myID {
+    background-color: yellow;
+}
+
+.text-div {
+    width: 300px;
+}
+
+ #cards {
+    width: 200px;
+    display: flex;
+}
+
+.card-context {
+    border: 1px solid #333;
+    width: 200px;
+    border-radius: 8px;
+    margin: 1rem;
+    padding: 0.2rem 1rem;
+    text-align: center;
+}  */
+
+/* padding */
+/* margin */
+/* font-family */
+/* font-size */
+/* color */
+/* background color */
+/* flexbox */
+/* border */
+/* border-radius */
+
+/* form */

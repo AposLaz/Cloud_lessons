@@ -1,0 +1,33 @@
+body {
+    background-color: rgb(226, 216, 216);
+}
+
+.login-form {
+    margin: 0 auto;
+    max-width: 300px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    border: 1px solid #333;
+    padding: 1rem;
+}
+
+input,label {
+    margin: 0.2rem 0;
+}
+
+input {
+    padding: 0.4rem;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.submit {
+    padding: 0.8rem;
+    background-color: #fff;
+    color: #555;
+    border-radius: 8px;
+    border: 1px solid #333;
+    font-weight: 600;
+    font-size: 1rem;
+}
