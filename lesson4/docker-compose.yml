@@ -52,13 +52,16 @@ services:
       DB_DATABASE: keycloak_db
     depends_on:
       - mysql-kc
+    volumes:
+      - keycloak-realm-data:/opt/jboss/keycloak/standalone/data 
     networks:
       - keycloak-and-mysql-network
 
 networks:
   keycloak-and-mysql-network:
   mysql-phpmyadmin:
-
+  
 volumes:
   keycloak-and-mysql-volume-v1:
   keycloak-vol:
+  keycloak-realm-data:
