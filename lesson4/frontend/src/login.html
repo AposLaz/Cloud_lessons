@@ -27,7 +27,7 @@
         </form>
       </div>
       <div id="register">
-        <form id="form-register" onsubmit="Register()">
+        <form id="form-register" onsubmit="return Register(event)">
           <input
             id="register-username"
             type="text"
@@ -41,6 +41,11 @@
             placeholder="password"
             required
           />
+          <label for="select-role">Select GROUP Role:</label>
+          <select id="select-role" name="select-role">
+            <option value="Customers">customer</option>
+            <option value="Sellers">seller</option>
+          </select>
           <button type="submit">Register</button>
         </form>
       </div>
