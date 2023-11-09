@@ -113,7 +113,7 @@ const products = [
   {
     id: 1,
     title: "First element",
-    img: "test",
+    img: fs.readFileSync(`${__dirname}/images/fruits.jpg`, "base64"),
     description: "test 1",
     price: 3,
   },

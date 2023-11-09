@@ -1,6 +1,30 @@
 version: "3.9"
 
 services:
+  frontend-app:
+    build:
+      context: ./frontend
+    container_name: frontend
+    restart: always
+    ports:
+      - "8000:80"
+    networks:
+      - keycloak-and-mysql-network
+      - products
+  
+  products-service:
+    build:
+      context: ./backend/products-service
+    container_name: products-service
+    command: npm start
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+    networks:
+      - products
+
   mysql-kc:
     container_name: mysql-kc
     image: mysql
@@ -60,8 +84,10 @@ services:
 networks:
   keycloak-and-mysql-network:
   mysql-phpmyadmin:
-  
+  products:
+
 volumes:
   keycloak-and-mysql-volume-v1:
   keycloak-vol:
   keycloak-realm-data:
+  

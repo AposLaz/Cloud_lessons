@@ -39,11 +39,29 @@ async function Login(e){
       const data = await response.json()
       //get token
       const access_token = data.access_token
+      const refresh_token = data.refresh_token
+      localStorage.setItem("refresh_token", refresh_token)
 
+      //decode token
       const decodedPayload = decodeJwt(access_token);
 
-      console.log(decodedPayload);
+      //store username, email and roles in localStorage
+      console.log(data)
+      //set username and email in a localStorage
+      localStorage.setItem("username", decodedPayload.preferred_username)
+      localStorage.setItem("email", decodedPayload.email)
+      
+      const role = decodedPayload.realm_access.roles.filter((el)=> el==='seller' || el==='customer')
+      localStorage.setItem("role", role)
 
+      //if user is customer redirect him to products page
+      if(localStorage.getItem("role") === 'customer'){
+        window.location.href = 'http://localhost:8000'
+      }
+
+      if(localStorage.getItem("role") === 'seller'){
+        window.location.href = 'http://localhost:5500'
+      }
       
     }else{
       const err = await response.json()
