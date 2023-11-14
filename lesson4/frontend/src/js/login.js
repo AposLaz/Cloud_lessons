@@ -12,64 +12,49 @@ function decodeJwt(jwtToken) {
 
 async function Login(e){
   //prevent reload page onsubmit
-  e.preventDefault();
-  try {
+  e.preventDefault()
   //get user username
   const getUsernameLogin = document.getElementById("username").value;
   //get user password
   const getPasswordLogin = document.getElementById("password").value;
 
-  // set body
-  const urlencoded = new URLSearchParams();
-  urlencoded.append("username", getUsernameLogin);
-  urlencoded.append("password", getPasswordLogin);
-  urlencoded.append("client_id", "test-client");
-  urlencoded.append("client_secret", "h4rXdX83e3qB6C6S0RybiC4F20iniTro");
-  urlencoded.append("grant_type", "password");
+  try {
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
 
-  const requestOptions_1 = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    body: urlencoded
-  };
-    const response = await fetch("http://localhost:8182/auth/realms/test-2/protocol/openid-connect/token", requestOptions_1)
+    var urlencoded = new URLSearchParams();
+    urlencoded.append("username", getUsernameLogin);
+    urlencoded.append("password", getPasswordLogin);
+    urlencoded.append("client_id", "client-front");
+    urlencoded.append("client_secret", "nqgBB0VQsfbyVrTP6lZlCzIquDrL3EZK");
+    urlencoded.append("grant_type", "password");
+
+    var requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      body: urlencoded,
+      redirect: 'follow'
+    };
+
+    const response = await fetch("http://localhost:8182/auth/realms/e-shop/protocol/openid-connect/token", requestOptions)
     if(response.ok){
-      const data = await response.json()
-      //get token
-      const access_token = data.access_token
-      const refresh_token = data.refresh_token
-      localStorage.setItem("refresh_token", refresh_token)
-
-      //decode token
-      const decodedPayload = decodeJwt(access_token);
-
-      //store username, email and roles in localStorage
-      console.log(data)
-      //set username and email in a localStorage
-      localStorage.setItem("username", decodedPayload.preferred_username)
-      localStorage.setItem("email", decodedPayload.email)
+      const login = await response.json()
+      const token = login.access_token
       
-      const role = decodedPayload.realm_access.roles.filter((el)=> el==='seller' || el==='customer')
-      localStorage.setItem("role", role)
-
-      //if user is customer redirect him to products page
-      if(localStorage.getItem("role") === 'customer'){
-        window.location.href = 'http://localhost:8000'
-      }
-
-      if(localStorage.getItem("role") === 'seller'){
-        window.location.href = 'http://localhost:5500'
-      }
-      
+      //store in localstorage username, email, role (customer, seller) and refresh_token
+      const decodeToken = await decodeJwt(token)
+      localStorage.setItem("username", decodeToken.preferred_username)
+      //clear localStorage
+      // localStorage.clear()
     }else{
       const err = await response.json()
-      console.log(err)
+      console.log(err) 
     }
+
   } catch (error) {
-    console.log('error', error)
+    console.log(error)
   }
+  return false
 }
 
 async function Register(e) {
@@ -83,84 +68,84 @@ async function Register(e) {
   const getPassword = document.getElementById("register-password").value;
   const getRole = document.getElementById("select-role").value;
 
-  //create an object with these data
-  const registerData = {
-    email: getEmail, 
-    enabled:"true", //enabled always true 
-    username: getUsername, 
-    attributes: {
-        client_id: "test-2"  //name of your client
-    },
-    groups: [ getRole ], //role users selected
-    credentials: [{
-      type:"password",
-      value: getPassword,
-      temporary: "false"
-    }]
-  }
-
-  
   try {
-    // Prepare Data for GET Token from Master Realm
-    // set body
-    const urlencoded = new URLSearchParams();
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+
+    var urlencoded = new URLSearchParams();
     urlencoded.append("grant_type", "client_credentials");
     urlencoded.append("client_id", "admin-cli");
-    urlencoded.append("client_secret", "bXR2iWVogPUfM8KHx21aMKbr0FCNRlfp"); //secret from admin-cli in Master Realm
+    urlencoded.append("client_secret", "bXR2iWVogPUfM8KHx21aMKbr0FCNRlfp");
 
-    const requestOptions_1 = {
+    var requestOptions = {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: urlencoded
+      headers: myHeaders,
+      body: urlencoded,
+      redirect: 'follow'
     };
 
-    const getTokenFromMasterRealm = await fetch('http://localhost:8182/auth/realms/master/protocol/openid-connect/token',requestOptions_1)
-    
-    if(getTokenFromMasterRealm.ok){
-      //request is success
-      const data = await getTokenFromMasterRealm.json()
-      const access_token = data.access_token
+    //get admin access token
+    const first_response = await fetch("http://localhost:8182/auth/realms/master/protocol/openid-connect/token", requestOptions)
+      
+    if(first_response.ok){
+      const adminAccessToken = await first_response.json();
+      const token = adminAccessToken.access_token
 
-      const requestOptions_2 = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer '+access_token
+      var myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append("Authorization", "Bearer "+token);
+
+      var raw = JSON.stringify({
+        "email": getEmail,
+        "enabled": "true",
+        "username": getUsername,
+        "attributes": {
+          "client_id": "client-front"
         },
-        body: JSON.stringify(registerData)
-      };
-      //Prepare Data for Register User
-      const registerUser = await fetch('http://localhost:8182/auth/admin/realms/test-2/users', requestOptions_2)
+        "groups": [
+          getRole
+        ],
+        "credentials": [
+          {
+            "type": "password",
+            "value": getPassword,
+            "temporary": false
+          }
+        ]
+      });
 
-      if(registerUser.ok){
-        //redirect user to Login Page and Appear a message Registration happens Ok
-        alert('User Registered Succesfully')
-        window.location.href('http://localhost:5500/login.html')
-      }else{
-        const err = await registerUser.json()
-        //print error and try appear the error for user
-        console.log(err)
-      }
+    var registerOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+      redirect: 'follow'
+    };
 
+    const registerUser =  await fetch("http://localhost:8182/auth/admin/realms/e-shop/users", registerOptions)
+    
+    if(registerUser.ok){
+      alert('register user is ok')
+
+      setTimeout(()=>{
+        window.location.href = "http://localhost:5500/Cloud_lessons/lesson4/frontend/src/login.html"
+      },2000)
+      
     }else{
-      //request is fail for some reason
-      const err = await getTokenFromMasterRealm.json()
-
-      //print error
+      const err = await registerUser.json()
       console.log(err)
     }
-  } catch (error) {
+
+    }else{
+      const err = await first_response.json();
+      console.log(err);
+    }
     
+  } catch (error) {
+    console.log(error)
   }
 
   return false
 }
-
-
-
-
 
 
 function LoginSelectBtn() {

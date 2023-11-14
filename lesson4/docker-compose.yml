@@ -1,35 +1,11 @@
 version: "3.9"
 
 services:
-  frontend-app:
-    build:
-      context: ./frontend
-    container_name: frontend
-    restart: always
-    ports:
-      - "8000:80"
-    networks:
-      - keycloak-and-mysql-network
-      - products
-  
-  products-service:
-    build:
-      context: ./backend/products-service
-    container_name: products-service
-    command: npm start
-    restart: always
-    ports:
-      - "5000:5000"
-    environment:
-      - PORT=5000
-    networks:
-      - products
-
   mysql-kc:
     container_name: mysql-kc
     image: mysql
     ports:
-      - 3307:3306
+      - 3306:3306
     restart: unless-stopped
     environment:
       # The user, password and database that Keycloak
@@ -43,20 +19,6 @@ services:
       - keycloak-and-mysql-volume-v1:/var/lib/mysql
     networks:
       - keycloak-and-mysql-network
-      - mysql-phpmyadmin
-
-  phpmyadmin:
-    depends_on:
-      - mysql-kc
-    image: phpmyadmin
-    restart: always
-    ports:
-      - "8090:80"
-    environment:
-      PMA_HOST: mysql-kc
-      PMA_PORT: 3306
-    networks:
-      - mysql-phpmyadmin
 
   keycloak-w:
     image: jboss/keycloak
@@ -83,11 +45,9 @@ services:
 
 networks:
   keycloak-and-mysql-network:
-  mysql-phpmyadmin:
   products:
 
 volumes:
   keycloak-and-mysql-volume-v1:
   keycloak-vol:
   keycloak-realm-data:
-  
