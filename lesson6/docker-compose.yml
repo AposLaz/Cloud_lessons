@@ -1,0 +1,195 @@
+version: '3.9'
+
+services:
+  zookeeper:
+      image: confluentinc/cp-zookeeper:7.2.1
+      container_name: zookeeper
+      environment:
+        ZOOKEEPER_CLIENT_PORT: 2181
+      networks:
+      - default
+
+  kafka:
+    image: confluentinc/cp-kafka:7.2.1
+    container_name: kafka
+    ports:
+      - "8097:8097"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:8097,INTERNAL://kafka:19092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+    networks:
+     - default
+    restart: on-failure
+    healthcheck:
+        test: ["CMD", "ping", "-c","1", "localhost:8097"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+
+  control-center:
+      image: confluentinc/cp-enterprise-control-center:latest
+      hostname: control-center
+      depends_on:
+        - kafka
+      ports:
+        - "9021:9021"
+      expose:
+        - 9021
+      environment:
+        CONTROL_CENTER_BOOTSTRAP_SERVERS: 'kafka:19092'
+        CONTROL_CENTER_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+        CONTROL_CENTER_REPLICATION_FACTOR: 1
+        PORT: 9021
+      networks:
+      - default
+      restart: always
+
+  mysql-kc:
+    container_name: mysql-kc
+    image: mysql
+    ports:
+      - 3306:3306
+    restart: unless-stopped
+    environment:
+      # The user, password and database that Keycloak
+      # is going to create and use
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      MYSQL_DATABASE: keycloak_db
+      # Self-Explanatory
+      MYSQL_ROOT_PASSWORD: admin
+    volumes:
+      - keycloak-and-mysql-volume-v1:/var/lib/mysql
+    networks:
+      - keycloak-and-mysql-network
+
+  keycloak-w:
+    image: jboss/keycloak
+    ports:
+      - 8182:8080
+    restart: unless-stopped
+    environment:
+      # User and password for the Administration Console
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      DB_VENDOR: mysql
+      DB_ADDR: mysql-kc
+      DB_PORT: 3306
+      # Same values as the mysql-kc service
+      DB_USER: admin
+      DB_PASSWORD: admin
+      DB_DATABASE: keycloak_db
+    depends_on:
+      - mysql-kc
+    volumes:
+      - keycloak-realm-data:/opt/jboss/keycloak/standalone/data 
+    networks:
+      - keycloak-and-mysql-network
+
+  orders_db:
+    container_name: orders_db
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'ordersDB'
+      # So you don't have to use root, but you can if you like
+      MYSQL_USER: 'admin'
+      # You can use whatever password you like
+      MYSQL_PASSWORD: 'admin'
+      # Password for root access
+      MYSQL_ROOT_PASSWORD: 'admin'
+    ports:
+      # <Port exposed> : <MySQL Port running inside container>
+      - '3308:3306'
+    expose:
+      # Opens port 3306 on the container
+      - '3308'
+      # Where our data will be persisted
+    volumes:
+      - orders-db:/var/lib/mysql  
+    networks:
+      - orders
+  
+  phpmyadmin_orders:
+    container_name: phpmyadmin_orders
+    depends_on:
+      - orders_db
+    image: phpmyadmin
+    restart: always
+    ports:
+      - "8290:80"
+    environment:
+      PMA_HOST: orders_db
+      PMA_PORT: 3308
+      MYSQL_ROOT_PASSWORD: admin
+      PMA_ARBITRARY: 1
+      PMA_USER: admin
+      PMA_PASSWORD: admin
+    networks:
+      - orders
+  
+  products_db:
+    container_name: products_db
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'productsDB'
+      # So you don't have to use root, but you can if you like
+      MYSQL_USER: 'admin'
+      # You can use whatever password you like
+      MYSQL_PASSWORD: 'admin'
+      # Password for root access
+      MYSQL_ROOT_PASSWORD: 'admin'
+    ports:
+      # <Port exposed> : <MySQL Port running inside container>
+      - '3310:3306'
+    expose:
+      # Opens port 3306 on the container
+      - '3310'
+      # Where our data will be persisted
+    volumes:
+      - products-db:/var/lib/mysql
+
+  phpmyadmin_products:
+    container_name: phpmyadmin_products
+    depends_on:
+      - orders_db
+    image: phpmyadmin
+    restart: always
+    ports:
+      - "8390:80"
+    environment:
+      PMA_HOST: products_db
+      PMA_PORT: 3310
+      MYSQL_ROOT_PASSWORD: admin
+      PMA_USER: admin
+      PMA_PASSWORD: admin
+      PMA_ARBITRARY: 1
+    networks:
+      - products
+
+networks:
+  default:
+      driver: bridge
+  keycloak-and-mysql-network:
+  products:
+  orders:
+
+volumes:
+  keycloak-and-mysql-volume-v1:
+  keycloak-vol:
+  keycloak-realm-data:
+  orders-db:
+  products-db:
+    

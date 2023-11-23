@@ -1,0 +1,29 @@
+html {
+  background-color: #888;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  overflow: none;
+}
+
+p {
+  font-size: 16px;
+}
+
+#cards {
+  display: flex;
+  justify-content: center;
+}
+
+.card {
+  border: 1px solid #333;
+  width: 200px;
+  border-radius: 8px;
+  margin: 1rem;
+  padding: 0.2rem 1rem;
+  text-align: center;
+}
+
+.card img {
+  max-width: 200px;
+}

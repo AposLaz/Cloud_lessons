@@ -1,0 +1,58 @@
+body {
+  font-family: "Courier New";
+}
+
+#sign-section {
+  margin: 0 auto;
+  max-width: 400px;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px;
+  padding: 1rem;
+  border-radius: 10px;
+}
+
+#register {
+  display: none;
+}
+
+#sign-selections {
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+#login-select-1 {
+  color: orange;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#register-select-1 {
+  cursor: pointer;
+}
+
+#login form,
+#register form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#login input,
+#register input {
+  margin: 10px;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #000;
+}
+
+#login button,
+#register button {
+  align-self: center;
+  background-color: #fff;
+  border-radius: 15px;
+  border: 1px solid #000;
+  padding: 1rem 0.5rem;
+  margin: 10px;
+  width: 300px;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
