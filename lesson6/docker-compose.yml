@@ -99,25 +99,25 @@ services:
 
   orders_db:
     container_name: orders_db
-    image: mysql:5.7
+    image: mysql
     restart: always
     environment:
-      MYSQL_DATABASE: 'ordersDB'
+      MYSQL_DATABASE: orders_db
       # So you don't have to use root, but you can if you like
-      MYSQL_USER: 'admin'
+      MYSQL_USER: admin
       # You can use whatever password you like
-      MYSQL_PASSWORD: 'admin'
+      MYSQL_PASSWORD: admin
       # Password for root access
-      MYSQL_ROOT_PASSWORD: 'admin'
+      MYSQL_ROOT_PASSWORD: admin
     ports:
       # <Port exposed> : <MySQL Port running inside container>
-      - '3308:3306'
+      - 3308:3306
     expose:
       # Opens port 3306 on the container
-      - '3308'
+      - 3308
       # Where our data will be persisted
     volumes:
-      - orders-db:/var/lib/mysql  
+      - ./orders-db:/var/lib/mysql  
     networks:
       - orders
   
@@ -134,37 +134,37 @@ services:
       PMA_PORT: 3308
       MYSQL_ROOT_PASSWORD: admin
       PMA_ARBITRARY: 1
-      PMA_USER: admin
-      PMA_PASSWORD: admin
     networks:
       - orders
   
   products_db:
     container_name: products_db
-    image: mysql:5.7
+    image: mysql
     restart: always
     environment:
-      MYSQL_DATABASE: 'productsDB'
+      MYSQL_DATABASE: "products_db"
       # So you don't have to use root, but you can if you like
-      MYSQL_USER: 'admin'
+      MYSQL_USER: "admin"
       # You can use whatever password you like
-      MYSQL_PASSWORD: 'admin'
+      MYSQL_PASSWORD: "admin"
       # Password for root access
-      MYSQL_ROOT_PASSWORD: 'admin'
+      MYSQL_ROOT_PASSWORD: "admin"
     ports:
       # <Port exposed> : <MySQL Port running inside container>
-      - '3310:3306'
+      - "3310:3306"
     expose:
       # Opens port 3306 on the container
-      - '3310'
+      - "3310"
       # Where our data will be persisted
     volumes:
-      - products-db:/var/lib/mysql
+      - ./products-db:/var/lib/mysql
+    networks:
+      - products
 
   phpmyadmin_products:
     container_name: phpmyadmin_products
     depends_on:
-      - orders_db
+      - products_db
     image: phpmyadmin
     restart: always
     ports:
@@ -172,10 +172,6 @@ services:
     environment:
       PMA_HOST: products_db
       PMA_PORT: 3310
-      MYSQL_ROOT_PASSWORD: admin
-      PMA_USER: admin
-      PMA_PASSWORD: admin
-      PMA_ARBITRARY: 1
     networks:
       - products
 
