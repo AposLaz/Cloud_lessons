@@ -1,34 +1,72 @@
 const express = require("express");
 const cors = require("cors");
-
-const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors());
+const { connection } = require("./databaseConnect");
+//init kafka
+const kafka = require("./kafka");
 
+const app = express();
+app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.get("/health", (req, res) => {
   res.send("ok");
 });
 
 //get all data
-app.get("/products", (req, res) => {
+app.get("/products", async (req, res) => {
   //
-  res.send(products);
+  try {
+    //get db
+    const db = await connection;
+    const results = await db.execute("SELECT * FROM products");
+    res.send(results[0]);
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
 //get data by id
-app.get("/products/:id", (req, res) => {
-  const id = Number(req.params.id); // req.params.id is in type string. Convert it to Number and get :id from url
-  res.send(product_with_id);
+app.get("/products/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    //get db
+    const db = await connection;
+
+    const results = await db.query("SELECT * FROM products WHERE `id` = ?", [
+      id,
+    ]);
+    res.send(results[0][0]);
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
 //store new data in a database
-app.post("/products", (req, res) => {
-  const data = req.body;
-  console.log(data);
-  res.send("Data stored succesfully");
+app.post("/products", async (req, res) => {
+  const product = req.body;
+  try {
+    const db = await connection;
+    const results = await db.execute(
+      "INSERT INTO products (title, img, price, quantity, user_product) VALUES (?, ?, ?, ?, ?)",
+      [
+        product.title,
+        product.img,
+        product.price,
+        product.quantity,
+        product.user_product,
+      ]
+    );
+
+    res.send(results[0]);
+  } catch (error) {
+    console.error("Error insert products:", error);
+    res.status(500).send({ error: "Internal Server Error" });
+  }
 });
 
 app.listen(port, () => {
