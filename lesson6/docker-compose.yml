@@ -97,83 +97,45 @@ services:
     networks:
       - keycloak-and-mysql-network
 
-  orders_db:
-    container_name: orders_db
+  orders_db: 
     image: mysql
-    restart: always
-    environment:
-      MYSQL_DATABASE: orders_db
-      # So you don't have to use root, but you can if you like
-      MYSQL_USER: admin
-      # You can use whatever password you like
-      MYSQL_PASSWORD: admin
-      # Password for root access
-      MYSQL_ROOT_PASSWORD: admin
-    ports:
-      # <Port exposed> : <MySQL Port running inside container>
-      - 3308:3306
+    ports: 
+      - "3308:3306"
     expose:
       # Opens port 3306 on the container
       - 3308
-      # Where our data will be persisted
-    volumes:
-      - ./orders-db:/var/lib/mysql  
-    networks:
-      - orders
-  
-  phpmyadmin_orders:
-    container_name: phpmyadmin_orders
-    depends_on:
-      - orders_db
-    image: phpmyadmin
+    container_name: orders_db
+    command: --default-authentication-plugin=mysql_native_password
     restart: always
-    ports:
-      - "8290:80"
     environment:
-      PMA_HOST: orders_db
-      PMA_PORT: 3308
-      MYSQL_ROOT_PASSWORD: admin
-      PMA_ARBITRARY: 1
+      MYSQL_DATABASE: order_db
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      MYSQL_ROOT_PASSWORD: admin 
+    volumes:
+      - ./data2/orders-db:/var/lib/mysql   
     networks:
       - orders
   
   products_db:
     container_name: products_db
-    image: mysql
+    image: mysql:5.7
     restart: always
+    command: --default-authentication-plugin=mysql_native_password
     environment:
-      MYSQL_DATABASE: "products_db"
-      # So you don't have to use root, but you can if you like
-      MYSQL_USER: "admin"
-      # You can use whatever password you like
-      MYSQL_PASSWORD: "admin"
-      # Password for root access
-      MYSQL_ROOT_PASSWORD: "admin"
+      MYSQL_DATABASE: products_db
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      MYSQL_ROOT_PASSWORD: admin
     ports:
-      # <Port exposed> : <MySQL Port running inside container>
-      - "3310:3306"
+      - '3310:3306'
     expose:
       # Opens port 3306 on the container
-      - "3310"
+      - '3310'
       # Where our data will be persisted
     volumes:
-      - ./products-db:/var/lib/mysql
-    networks:
-      - products
+      - ./data2/products-db:/var/lib/mysql
 
-  phpmyadmin_products:
-    container_name: phpmyadmin_products
-    depends_on:
-      - products_db
-    image: phpmyadmin
-    restart: always
-    ports:
-      - "8390:80"
-    environment:
-      PMA_HOST: products_db
-      PMA_PORT: 3310
-    networks:
-      - products
 
 networks:
   default:
@@ -188,4 +150,3 @@ volumes:
   keycloak-realm-data:
   orders-db:
   products-db:
-    
