@@ -1,0 +1,287 @@
+{
+	"info": {
+		"_postman_id": "ede336af-6a22-4ab4-941c-d1eb2e237408",
+		"name": "Keycloack_Rest_APi",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "10627395"
+	},
+	"item": [
+		{
+			"name": "Logout",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "refresh_token",
+							"value": "eyJhbGciOiJIUzUxMiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIwMzUzZWU0Zi1hNTE5LTQ4MmItYjRhNC03NDZjOGU1YTFiZTcifQ.eyJleHAiOjE3MzExMDE5NTAsImlhdCI6MTczMTEwMDE1MCwianRpIjoiYzk0OGVhZDItYThkOS00ZjhlLWE0YzEtYWU1ZWNiMTllNDNjIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MTgyL3JlYWxtcy9lY29tbWVyY2UiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgxODIvcmVhbG1zL2Vjb21tZXJjZSIsInN1YiI6ImU4ODM5MDAwLTgyZjEtNDY0My04NDljLWUyN2QwNmVlNjliZCIsInR5cCI6IlJlZnJlc2giLCJhenAiOiJmcm9udGVuZC1hcHAiLCJzaWQiOiJmMTAzM2I4Yi1jZmZkLTQ0ODMtOGJkMy01YjUxYmY5Y2U2MmMiLCJzY29wZSI6InJvbGVzIGFjciB3ZWItb3JpZ2lucyBlbWFpbCBwcm9maWxlIGJhc2ljIn0.qN3aU2D8OtFYZ3qLn7y6CkE3ekDrukNdj7MUHAIeXoKKVJPgbNoUkUdWIOkDc1jNKjazndVQkdZIuyn1C79VIQ",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "frontend-app",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8182/realms/ecommerce/protocol/openid-connect/logout",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8182",
+					"path": [
+						"realms",
+						"ecommerce",
+						"protocol",
+						"openid-connect",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refresh Token",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIwbWk4X01BVzNNZmZFay1PLWszb2Nlck5qS1VlM0JLMG5zNTNVcE8yZGNnIn0.eyJleHAiOjE3MzExMDEzNTIsImlhdCI6MTczMTEwMTA1MiwiYXV0aF90aW1lIjoxNzMxMTAwOTg4LCJqdGkiOiI3MjY1MmI1Zi1jZDY2LTQyZjEtYjE4Zi05OWJlMGEwMTAwYzgiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgxODIvcmVhbG1zL2Vjb21tZXJjZSIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiJlODgzOTAwMC04MmYxLTQ2NDMtODQ5Yy1lMjdkMDZlZTY5YmQiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJmcm9udGVuZC1hcHAiLCJzaWQiOiJiNmQ2NzJiNi1mYmQ2LTQyYWQtYTg3OC1iN2U5Mzg5MmI0YjgiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbIioiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImRlZmF1bHQtcm9sZXMtZWNvbW1lcmNlIiwib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoiZW1haWwgcHJvZmlsZSIsInVzZXJfcm9sZSI6InNlbGxlciIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwibmFtZSI6InRlc3QgdGVzdCIsInByZWZlcnJlZF91c2VybmFtZSI6InRlc3QiLCJnaXZlbl9uYW1lIjoidGVzdCIsImZhbWlseV9uYW1lIjoidGVzdCIsImVtYWlsIjoidGVzdEBnbWFpbC5jb20ifQ.PlqD__aRjY7F4hEvULzsq1KT7yKE3WGMPTrUQic0VnmYy9PxX_ZUXuj_kP5CnxYC9MMxieueejnadwZSqwaUXz9ZNUw4_1EKeGo3za-ohAvGEMeNQnnWEy38qWCBMEJ7c6IDhYGaMHswe7LiLUKIeEXwgLCTynBhw0Ym68Rzm8v6NoIJ-chBGpSqpQDOYwcyYgolrruj7lc48b6oj3Wa0c4BEuQ433nVM-PKi3PcczxjOYEqQZcJoMwHnyTxOypOgcH1sqgduLPsA0OAKj8z6pZsgRqs2_UsVvvZFkOnOgqbZMW6Fs7kAns6xgViRvazmam3B2Xe9bmuCsn7u6SK9A",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "frontend-app",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "refresh_token",
+							"type": "text"
+						},
+						{
+							"key": "refresh_token",
+							"value": "eyJhbGciOiJIUzUxMiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIwMzUzZWU0Zi1hNTE5LTQ4MmItYjRhNC03NDZjOGU1YTFiZTcifQ.eyJleHAiOjE3MzExMDI4MDQsImlhdCI6MTczMTEwMTAwNCwianRpIjoiYTNiNTgzYTYtM2JmOC00NmVjLWFmN2EtMjFjNDI4NjY1Nzg2IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MTgyL3JlYWxtcy9lY29tbWVyY2UiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgxODIvcmVhbG1zL2Vjb21tZXJjZSIsInN1YiI6ImU4ODM5MDAwLTgyZjEtNDY0My04NDljLWUyN2QwNmVlNjliZCIsInR5cCI6IlJlZnJlc2giLCJhenAiOiJmcm9udGVuZC1hcHAiLCJzaWQiOiJiNmQ2NzJiNi1mYmQ2LTQyYWQtYTg3OC1iN2U5Mzg5MmI0YjgiLCJzY29wZSI6InJvbGVzIGFjciB3ZWItb3JpZ2lucyBlbWFpbCBwcm9maWxlIGJhc2ljIn0.Wzzlm4KpfKEU7gvOlng9hHfJ_-Wh8Ni-PAy9g1WzUNosgkL72gbQ-hhRj4YDarYmWq-AkVDX4SGrjfXzT9EfXw",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8182/realms/ecommerce/protocol/openid-connect/token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8182",
+					"path": [
+						"realms",
+						"ecommerce",
+						"protocol",
+						"openid-connect",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Request For Login (Try in broswer)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8182/realms/ecommerce/protocol/openid-connect/auth/?response_type=code&client_id=frontend-app&redirect_uri=http://127.0.0.1:5500",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8182",
+					"path": [
+						"realms",
+						"ecommerce",
+						"protocol",
+						"openid-connect",
+						"auth",
+						""
+					],
+					"query": [
+						{
+							"key": "response_type",
+							"value": "code"
+						},
+						{
+							"key": "client_id",
+							"value": "frontend-app"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "http://127.0.0.1:5500"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Exchange Authorization Token",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "grant_type",
+						"value": "authorization_code",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "code",
+						"value": "25e13c28-1950-45c8-9cfc-cf1f6acc1cb3.366f9595-5322-4402-9d38-493ef2509971.4b4f2fc2-bda2-43e5-ab0a-deabd3df56ca",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "client_id",
+						"value": "frontend-app",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "redirect_uri",
+						"value": "http://127.0.0.1:8000",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "authorization_code",
+							"type": "text"
+						},
+						{
+							"key": "code",
+							"value": "1c343b79-42b7-4dc7-837e-7573b497f610.31ad447a-1071-4cb9-9b4d-ac47275b8f71.33238770-c712-4f93-b535-ee2be470afc2",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "frontend-app",
+							"type": "text"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "http://127.0.0.1:5500/frontend/src/index.html",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8182/realms/ecommerce/protocol/openid-connect/token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8182",
+					"path": [
+						"realms",
+						"ecommerce",
+						"protocol",
+						"openid-connect",
+						"token"
+					],
+					"query": [
+						{
+							"key": "grant_type",
+							"value": "authorization_code",
+							"disabled": true
+						},
+						{
+							"key": "code",
+							"value": "25e13c28-1950-45c8-9cfc-cf1f6acc1cb3.366f9595-5322-4402-9d38-493ef2509971.4b4f2fc2-bda2-43e5-ab0a-deabd3df56ca",
+							"disabled": true
+						},
+						{
+							"key": "client_id",
+							"value": "frontend-app",
+							"disabled": true
+						},
+						{
+							"key": "redirect_uri",
+							"value": "http://127.0.0.1:8000",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth_2_request-postman",
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "redirect_uri",
+							"value": "http://127.0.0.1:8000",
+							"type": "string"
+						},
+						{
+							"key": "useBrowser",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "authUrl",
+							"value": "http://localhost:8182/realms/ecommerce/protocol/openid-connect/auth",
+							"type": "string"
+						},
+						{
+							"key": "accessTokenUrl",
+							"value": "http://localhost:8182/realms/ecommerce/protocol/openid-connect/token",
+							"type": "string"
+						},
+						{
+							"key": "clientId",
+							"value": "frontend-app",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "",
+					"query": [
+						{
+							"key": "redirect_uri",
+							"value": "http://127.0.0.1:8000",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
