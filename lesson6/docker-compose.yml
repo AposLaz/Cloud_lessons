@@ -1,13 +1,14 @@
-version: '3.9'
+version: "3.9"
 
 services:
   zookeeper:
-      image: confluentinc/cp-zookeeper:7.2.1
-      container_name: zookeeper
-      environment:
-        ZOOKEEPER_CLIENT_PORT: 2181
-      networks:
+    image: confluentinc/cp-zookeeper:7.2.1
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
       - default
+      - kafka
 
   kafka:
     image: confluentinc/cp-kafka:7.2.1
@@ -29,124 +30,200 @@ services:
       KAFKA_JMX_PORT: 9101
       KAFKA_JMX_HOSTNAME: localhost
     networks:
-     - default
+      - default
+      - kafka
     restart: on-failure
     healthcheck:
-        test: ["CMD", "ping", "-c","1", "localhost:8097"]
-        interval: 30s
-        timeout: 10s
-        retries: 5
+      test: ["CMD", "ping", "-c", "1", "localhost:8097"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   control-center:
-      image: confluentinc/cp-enterprise-control-center:latest
-      hostname: control-center
-      depends_on:
-        - kafka
-      ports:
-        - "9021:9021"
-      expose:
-        - 9021
-      environment:
-        CONTROL_CENTER_BOOTSTRAP_SERVERS: 'kafka:19092'
-        CONTROL_CENTER_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-        CONTROL_CENTER_REPLICATION_FACTOR: 1
-        PORT: 9021
-      networks:
+    image: confluentinc/cp-enterprise-control-center:latest
+    hostname: control-center
+    depends_on:
+      - kafka
+    ports:
+      - "9021:9021"
+    expose:
+      - 9021
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: "kafka:19092"
+      CONTROL_CENTER_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      PORT: 9021
+    networks:
       - default
-      restart: always
+      - kafka
+    restart: always
 
   mysql-kc:
     container_name: mysql-kc
-    image: mysql
+    image: mysql:8.0
     ports:
       - 3306:3306
     restart: unless-stopped
     environment:
       # The user, password and database that Keycloak
       # is going to create and use
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: admin
-      MYSQL_DATABASE: keycloak_db
+      MYSQL_USER: keycloak
+      MYSQL_PASSWORD: keycloak
+      MYSQL_DATABASE: keycloak
       # Self-Explanatory
       MYSQL_ROOT_PASSWORD: admin
     volumes:
-      - keycloak-and-mysql-volume-v1:/var/lib/mysql
+      - ./data2/mysql-keycloak:/var/lib/mysql
+      - ./keycloak.sql:/docker-entrypoint-initdb.d/init.sql # Mount the SQL file
     networks:
       - keycloak-and-mysql-network
 
   keycloak-w:
-    image: jboss/keycloak
+    image: quay.io/keycloak/keycloak:26.0.5
     ports:
       - 8182:8080
     restart: unless-stopped
+    command: start-dev
     environment:
       # User and password for the Administration Console
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: admin
-      DB_VENDOR: mysql
-      DB_ADDR: mysql-kc
-      DB_PORT: 3306
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT: false
+      # KC_PROXY: edge
+      KC_DB: mysql
+      KC_DB_URL_HOST: mysql-kc
+      KC_DB_URL_PORT: 3306
       # Same values as the mysql-kc service
-      DB_USER: admin
-      DB_PASSWORD: admin
-      DB_DATABASE: keycloak_db
+      KC_DB_SCHEMA: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      KC_DB_URL_DATABASE: keycloak
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: true
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 20
+
     depends_on:
       - mysql-kc
     volumes:
-      - keycloak-realm-data:/opt/jboss/keycloak/standalone/data 
+      - keycloak-realm-data:/opt/jboss/keycloak/standalone/data
     networks:
       - keycloak-and-mysql-network
 
-  orders_db: 
-    image: mysql
-    ports: 
-      - "3308:3306"
-    expose:
-      # Opens port 3306 on the container
-      - 3308
-    container_name: orders_db
-    command: --default-authentication-plugin=mysql_native_password
-    restart: always
-    environment:
-      MYSQL_DATABASE: order_db
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: admin
-      MYSQL_ROOT_PASSWORD: admin 
-    volumes:
-      - ./data2/orders-db:/var/lib/mysql   
-    networks:
-      - orders
-  
-  products_db:
-    container_name: products_db
-    image: mysql:5.7
-    restart: always
-    command: --default-authentication-plugin=mysql_native_password
-    environment:
-      MYSQL_DATABASE: products_db
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: admin
-      MYSQL_ROOT_PASSWORD: admin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: unless-stopped
     ports:
-      - '3310:3306'
-    expose:
-      # Opens port 3306 on the container
-      - '3310'
-      # Where our data will be persisted
-    volumes:
-      - ./data2/products-db:/var/lib/mysql
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql-kc
+      MYSQL_ROOT_PASSWORD: admin
+    depends_on:
+      - mysql-kc
+    networks:
+      - keycloak-and-mysql-network
 
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #   container_name: frontend
+  #   command:
+  #   restart: always
+  #   ports:
+  #     - "8000:80"
+  #   networks:
+  #     - products
+  #     - orders
+
+  # products-service:
+  #   build:
+  #     context: ./backend/products
+  #   container_name: products-service
+  #   command: npm start
+  #   restart: always
+  #   ports:
+  #     - "5000:5000"
+  #   environment:
+  #     - PORT=5000
+  #   networks:
+  #     - products
+  #     - kafka
+
+  # orders-service:
+  #   build:
+  #     context: ./backend/orders
+  #   container_name: orders-service
+  #   command: npm start
+  #   restart: always
+  #   ports:
+  #     - "6000:6000"
+  #   environment:
+  #     - PORT=6000
+  #   networks:
+  #     - orders
+  #     - kafka
+
+  # orders_db:
+  #   image: mysql:5.7
+  #   ports:
+  #     - "3308:3306"
+  #   expose:
+  #     # Opens port 3306 on the container
+  #     - 3308
+  #   container_name: orders_db
+  #   command: --default-authentication-plugin=mysql_native_password
+  #   restart: always
+  #   environment:
+  #     MYSQL_DATABASE: orders_db
+  #     MYSQL_USER: admin
+  #     MYSQL_PASSWORD: admin
+  #     MYSQL_ROOT_PASSWORD: admin
+  #   volumes:
+  #     - ./data2/orders-db:/var/lib/mysql
+  #   networks:
+  #     - orders
+
+  # products_db:
+  #   container_name: products_db
+  #   image: mysql:5.7
+  #   restart: always
+  #   command: --default-authentication-plugin=mysql_native_password
+  #   environment:
+  #     MYSQL_DATABASE: products_db
+  #     MYSQL_USER: admin
+  #     MYSQL_PASSWORD: admin
+  #     MYSQL_ROOT_PASSWORD: admin
+  #   ports:
+  #     - "3310:3306"
+  #   expose:
+  #     # Opens port 3306 on the container
+  #     - "3310"
+  #     # Where our data will be persisted
+  #   volumes:
+  #     - ./data2/products-db:/var/lib/mysql
+  #   networks:
+  #     - products
 
 networks:
   default:
-      driver: bridge
+    driver: bridge
   keycloak-and-mysql-network:
   products:
   orders:
+  kafka:
 
 volumes:
-  keycloak-and-mysql-volume-v1:
-  keycloak-vol:
+  mysql-keycloak:
   keycloak-realm-data:
   orders-db:
   products-db:
